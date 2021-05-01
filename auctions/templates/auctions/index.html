@@ -1,0 +1,24 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<!-- Page Content -->
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="mb-4 text-center">Active Listings</h2>
+        <div class="row">
+            {% for commodity in commodities %}
+            {% include 'auctions/inc/commodity_card_template.html' %}
+            {% empty %}
+            <h4>No active listings</h4>
+            {% endfor %}
+        </div>
+        <!-- /.row -->
+
+    </div>
+    <!-- /.col-lg-9 -->
+
+</div>
+<!-- /.row -->
+
+{% endblock %}

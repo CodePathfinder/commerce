@@ -1,0 +1,246 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<!-- Page Content -->
+<div class="col-lg-12">
+
+	{% if not user.is_authenticated %}
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		<strong>Please sign in to place a bid, set a
+			watchlist, or leave a comment</strong>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	{% elif winner == user.get_username and not commodity.is_active %}
+	<div class="alert alert-success alert-dismissible fade show" role="alert">
+		<strong>Congratulations! You are the winner of the listing:
+			{{ commodity.title }} for ${{ commodity.current_price|floatformat:2 }}
+		</strong>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	{% endif %}
+	<div class="row mt-4">
+		<div class="col-md-4">
+			{% if commodity.photo %}
+			<img src="{{ commodity.photo }}" alt="{{ commodity.title }}" class="img-fluid">
+			{% else %}
+			<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
+				alt="No image" class="img-fluid">
+			{% endif %}
+		</div>
+		<!-- /.col-md-4 -->
+
+		<div class="col-md-5">
+			<div class="list-group list-group-flush">
+				<div class="list-group-item">
+					<h4>{{ commodity.title }}</h4>
+				</div>
+
+				{% if message %}
+				{% if message_success %}
+				<div class="alert alert-success alert-dismissible fade show" role="alert">
+					<strong>{{ message }}</strong>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				{% else %}
+				<div class="alert alert-warning alert-dismissible fade show" role="alert">
+					<strong>{{ message }}</strong>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				{% endif %}
+				{% endif %}
+
+				<div class="list-group-item inline">
+					<h6 class="mt-1">
+						{% if commodity.is_active %}
+						Current price:
+						{% else %}
+						Final price:
+						{% endif %}
+						<span style="border:1px solid#0062cc; border-radius:4px; padding:5px;">
+							${{ commodity.current_price|floatformat:2 }}
+						</span>
+					</h6>
+				</div>
+				<div class="list-group-item">
+					Description: {{ commodity.discription }}
+				</div>
+				<div class="list-group-item">
+					<div>
+						Status:
+						{% if commodity.is_active %}
+						<span style="border:1px solid #1e7e34; border-radius:4px; padding:5px;">
+							active
+						</span>
+						{% else %}
+						<span style="border:1px solid #bd2130; border-radius:4px; padding:5px;">
+							closed
+						</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="list-group-item">
+					Seller: {{ commodity.listed_by }}
+				</div>
+				<div class="list-group-item inline">
+					Starting price: ${{ commodity.starting_bid|floatformat:2 }}
+				</div>
+				<div class="list-group-item">
+					Created at: {{ commodity.created_at|date }}
+				</div>
+				<div class="list-group-item">
+					Number of bids: {{ bids_n }}
+				</div>
+				{% if user.is_authenticated %}
+				<!-- show watchlist button for authenticated user -->
+				<div class="list-group-item">
+					<form action="{% url 'watchlist' %}" method="post">
+						{% csrf_token %}
+						<input type="hidden" name="commodity_id" value="{{ commodity.pk }}">
+						{% if on_watchlist %}
+						<!-- <button class="btn btn-danger btn-block">Remove from watchlist</button> -->
+						<button class="btn btn-outline-danger  btn-block">Remove from watchlist</button>
+						{% else %}
+						<button class="btn btn-outline-success btn-block">Add to watchlist</button>
+						{% endif %}
+					</form>
+
+				</div>
+				{% else %}
+				<!-- show watchlist button for ananimous user -->
+				<div class="list-group-item">
+					<form action="{% url 'watchlist' %}" method="post">
+						{% csrf_token %}
+						<input type="hidden" name="commodity_id" value="{{ commodity.pk }}">
+						{% if on_watchlist %}
+						<button class="btn btn-outline-secondary btn-block" disabled>Remove from watchlist</button>
+						{% else %}
+						<button class="btn btn-outline-secondary btn-block" disabled>Add to watchlist</button>
+						{% endif %}
+					</form>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		<!-- /.col-md-5 -->
+		{% if user.is_authenticated %}
+		<div class="col-md-3">
+			<div class="list-group list-group-flush">
+				<div class="list-group-item">
+					{% if commodity.listed_by.username == user.get_username %}
+					<!-- show "close" button for the author of the listings instead of "place a bid" form; thus, the seller is enabled to make buying offer -->
+					<form action="{% url 'closed' commodity.pk %}" method="post">
+						{% csrf_token %}
+						{% if commodity.is_active %}
+						<button class="btn btn-outline-primary btn-block">
+							Close auction
+						</button>
+						{% else %}
+						<!-- if auction was closed, button is disabled -->
+						<button class="btn btn-outline-secondary btn-block" disabled>
+							Close auction
+						</button>
+						{% endif %}
+					</form>
+					{% else %}
+					<!-- "place a bid" form is shown -->
+					<h4 class="text-center mb-4">Your bid</h4>
+					<form action="{% url 'bid' commodity.pk %}" method="post">
+						{% csrf_token %}
+						{{ form.as_p }}
+						{% if commodity.is_active %}
+						<button class="btn btn-outline-primary btn-block">Confirm</button>
+						{% else %}
+						<!-- if auction was closed, button is disabled -->
+						<button class="btn btn-outline-secondary btn-block" disabled>Confirm</button>
+						{% endif %}
+					</form>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		<!-- /.col-md-3 -->
+		{% else %}
+		<div class="col-md-3">
+			<div class="list-group list-group-flush">
+				<div class="list-group-item">
+					<a href="{% url 'login' %}">
+						<button class="btn btn-outline-primary btn-block">
+							Log In
+						</button>
+					</a>
+					<a href="{% url 'register' %}">
+						<button class="btn btn-outline-primary btn-block mt-3">
+							Register
+						</button>
+					</a>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		<!-- /.col-md-3 -->
+	</div>
+	<!-- /.row -->
+
+	<div class="row">
+		<div class="col-md-9 mt-1">
+			<div class="card card-outline-secondary my-4">
+				<div class="card-header">
+					<h6>Comments ({{ comments_n }}):</h6>
+				</div>
+
+				{% for comment in comments %}
+				<div class="card-body">
+					<p>{{ comment.content }}</p>
+					<small class="text-muted ml-3">Posted by
+						<strong>{{ comment.author }}</strong>
+						on {{ comment.created_at|date }}
+					</small>
+				</div>
+				{% empty %}
+				<div class="card-body">
+					<p>No comments. Be the first ...</p>
+				</div>
+				{% endfor %}
+
+			</div>
+		</div>
+		<!-- /.col-md-9 -->
+
+		<div class="col-md-3 mt-3">
+			<div class="list-group list-group-flush">
+				<div class="list-group-item">
+					{% if user.is_authenticated %}
+					<a href="{% url 'add_comment' commodity.pk %}">
+						<button class="btn btn-outline-primary btn-block">
+							Leave your comment
+						</button>
+					</a>
+					{% else %}
+					<a href="">
+						<button class="btn btn-outline-secondary btn-block" disabled>
+							Leave your comment
+						</button>
+					</a>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- /.col-md-3 -->
+</div>
+<!-- /.row -->
+</div>
+<!-- /.col-lg-12 -->
+
+{% endblock %}

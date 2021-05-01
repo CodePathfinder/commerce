@@ -1,0 +1,31 @@
+<div class="col-lg-3 col-md-6 mb-4">
+	<div class="card h-100">
+		<a href="{{ commodity.get_absolute_url }}">
+			{% if commodity.photo %}
+			<img src="{{ commodity.photo }}" alt="{{ commodity.title }}"
+				class="card-img-top card-img-bottom w-50 ml-4 mt-3">
+			{% else %}
+			<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
+				alt="No image" class="card-img-top card-img-bottom w-50 ml-4 mt-3">
+			{% endif %}
+		</a>
+		<div class="card-body">
+			<h4 class="card-title">
+				<a href="{{ commodity.get_absolute_url }}">{{ commodity.title }}</a>
+			</h4>
+			<h5>${{ commodity.current_price|floatformat:2 }}</h5>
+			<p class="card-text">{{ commodity.discription }}</p>
+		</div>
+		<div class="card-footer">
+			{% for item in commodity.category.all %}
+			<a href="{{ item.get_absolute_url }}" class="badge badge-primary" style="color:white">
+				{{ item }}
+			</a>
+			{% empty %}
+			<a href="" class="badge badge-secondary" style="color:white">
+				Unassigned
+			</a>
+			{% endfor %}
+		</div>
+	</div>
+</div>

@@ -1,0 +1,117 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<!-- Page Content -->
+<div class="row">
+	<div class="col-lg-12">
+		<h2 class="text-center">Your Watchlist</h2>
+		<h5 class="mb-4 text-center">
+			{% if count %}
+			{% if count > 1 %}
+			({{ count }} items)
+			{% else %}
+			({{ count }} item)
+			{% endif %}
+			{% else %}
+			(no items on your watchlist)
+			{% endif %}
+		</h5>
+		{% if message %}
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			<strong>{{ message }}</strong>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		{% endif %}
+
+		{% for commodity in commodities %}
+
+		{% if commodity.commodity__current_price == commodity.user_highest_bid and not commodity.commodity__is_active %}
+
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			<strong>
+				Congratulations! You are the winner of the auction. You bought
+				"{{ commodity.commodity__title }}" for
+				${{ commodity.user_highest_bid|floatformat:2 }}
+			</strong>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		{% endif %}
+
+		{% endfor %}
+
+		<div class="row">
+
+			{% for commodity in commodities %}
+			<div class="col-lg-3 col-md-6 mb-4">
+				<div class="card h-100">
+
+					<div class="card-header">
+						{% if commodity.commodity__is_active %}
+						<span class="badge badge-success" style="color:white">Active</span>
+						{% else %}
+						<span class="badge badge-secondary" style="color:white;">Closed</span>
+						{% endif %}
+					</div>
+
+					<a href="{% url 'bid' commodity.commodity__pk %}">
+						{% if commodity.commodity__photo %}
+						<img src="{{ commodity.commodity__photo }}" alt="{{ commodity.commodity__title }}"
+							class="card-img-top card-img-bottom w-50 ml-4 mt-3">
+						{% else %}
+						<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
+							alt="No image" class="card-img-top card-img-bottom w-50 ml-4 mt-3">
+						{% endif %}
+					</a>
+
+					<div class="card-body">
+						<h4 class="card-title">
+							<a href="{% url 'bid' commodity.commodity__pk %}">{{ commodity.commodity__title }}</a>
+						</h4>
+						<h5>${{ commodity.commodity__current_price|floatformat:2 }}</h5>
+						<p class="card-text">{{ commodity.commodity__discription }}</p>
+					</div>
+
+					<div class="card-footer">
+
+						{% if commodity.commodity__listed_by__username == user.get_username %}
+
+						This is your listing.<br>
+						Starting price: ${{ commodity.commodity__starting_bid }}
+
+						{% elif commodity.user_highest_bid %}
+
+						Your bid: ${{ commodity.user_highest_bid|floatformat:2 }}<br>
+						({{ commodity.user_highest_bid_created_at|date }})
+
+						{% else %}
+
+						You did not submit an offer yet
+
+						{% endif %}
+
+						<hr>
+						<form action="{% url 'watchlist' %}" method="post">
+							{% csrf_token %}
+							<input type="hidden" name="commodity_id" value="{{ commodity.commodity__pk }}">
+							<button class="btn btn-outline-danger btn-block">
+								Remove from watchlist
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+		<!-- /.row -->
+	</div>
+	<!-- /.col-lg-9 -->
+</div>
+<!-- /.row -->
+
+{% endblock %}
