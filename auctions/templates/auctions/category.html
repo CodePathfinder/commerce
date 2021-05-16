@@ -7,13 +7,16 @@
 	<div class="col-lg-12">
 		<h2 class="my-4 text-center">Active Listings in Category "{{ cat|capfirst }}"</h2>
 		<div class="row">
-			{% for commodity in commodities %}
+			{% for commodity in page_object.object_list %}
 			{% include 'auctions/inc/commodity_card_template.html' %}
 			{% empty %}
 			<h4>No active listings in category {{cat}}</h4>
 			{% endfor %}
 		</div>
 		<!-- /.row -->
+
+		{% include 'auctions/inc/pagination.html' %}
+
 	</div>
 	<!-- /.col-lg-12 -->
 </div>

@@ -7,14 +7,10 @@
 	<div class="col-lg-12">
 		<h2 class="text-center">Your Watchlist</h2>
 		<h5 class="mb-4 text-center">
-			{% if count %}
-			{% if count > 1 %}
-			({{ count }} items)
+			{% if count %} 
+			({{ count }} item{{ count|pluralize }})
 			{% else %}
-			({{ count }} item)
-			{% endif %}
-			{% else %}
-			(no items on your watchlist)
+			(no items watched)
 			{% endif %}
 		</h5>
 		{% if message %}
@@ -26,7 +22,7 @@
 		</div>
 		{% endif %}
 
-		{% for commodity in commodities %}
+		{% for commodity in page_object.object.list %}
 
 		{% if commodity.commodity__current_price == commodity.user_highest_bid and not commodity.commodity__is_active %}
 
@@ -47,7 +43,7 @@
 
 		<div class="row">
 
-			{% for commodity in commodities %}
+			{% for commodity in page_object %}
 			<div class="col-lg-3 col-md-6 mb-4">
 				<div class="card h-100">
 
@@ -109,6 +105,9 @@
 			{% endfor %}
 		</div>
 		<!-- /.row -->
+
+		{% include 'auctions/inc/pagination.html' %}
+
 	</div>
 	<!-- /.col-lg-9 -->
 </div>

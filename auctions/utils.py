@@ -1,5 +1,29 @@
 from .models import Bid, Watchlist
 from django.db.models import Max
+from django.core.paginator import Paginator
+
+
+def pagination(request, objects_list):
+
+    paginator = Paginator(objects_list, 4)
+
+    # page number is extracted form GET dictionary of the request object with get() method, default value 1
+    page_number = request.GET.get('page', 1)
+    page = paginator.get_page(page_number)
+
+    is_paginated = page.has_other_pages()
+
+    if page.has_previous():
+        prev_url = '?page={}'.format(page.previous_page_number())
+    else:
+        prev_url = ''
+
+    if page.has_next():
+        next_url = f'?page={page.next_page_number()}'
+    else:
+        next_url = ''
+
+    return (page, is_paginated, next_url, prev_url)
 
 
 def verify_and_update_current_price(commodity):
@@ -43,7 +67,7 @@ def set_on_watchlist_flag(user, commodity):
     return on_watchlist
 
 
-def add_highest_bid_user_made_for_each_watchlist_items(user):
+def list_with_added_highest_bid_user_made_for_each_watchlist_items(user):
 
     # get list of commodities as dict objects added by active user to his/her watchlist
     commodities_shortlist = Watchlist.objects.filter(

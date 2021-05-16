@@ -6,27 +6,45 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import User, AuctionListings, Category, Bid, Comments, Watchlist
 from .forms import NewBid, NewComment, NewListing
-from .utils import *
+from .utils import \
+    pagination, \
+    verify_and_update_current_price, \
+    determine_winner_of_closed_listing, \
+    set_on_watchlist_flag, \
+    list_with_added_highest_bid_user_made_for_each_watchlist_items
 
 
 def index(request):
     commodities = AuctionListings.objects.exclude(is_active=False)
-    return render(request, "auctions/index.html",
-                  {
-                      'commodities': commodities
-                  })
+
+    page, is_paginated, next_url, prev_url = pagination(request, commodities)
+
+    context = {
+        'page_object': page,
+        'is_paginated': is_paginated,
+        'next_url': next_url,
+        'prev_url': prev_url
+    }
+
+    return render(request, "auctions/index.html", context)
 
 
 def category(request, pk):
-    # cat = Category.objects.get(pk=pk)
     cat = get_object_or_404(Category, pk=pk)
     commodities = AuctionListings.objects.filter(
         category=cat).exclude(is_active=False)
-    return render(request, "auctions/category.html",
-                  {
-                      'commodities': commodities,
-                      'cat': cat
-                  })
+
+    page, is_paginated, next_url, prev_url = pagination(request, commodities)
+
+    context = {
+        'page_object': page,
+        'is_paginated': is_paginated,
+        'next_url': next_url,
+        'prev_url': prev_url,
+        'cat': cat
+    }
+
+    return render(request, "auctions/category.html", context)
 
 
 @login_required
@@ -220,14 +238,21 @@ def watchlist(request):
     else:
         message = ''
 
-    commodities_on_watchlist = add_highest_bid_user_made_for_each_watchlist_items(
+    commodities_on_watchlist = list_with_added_highest_bid_user_made_for_each_watchlist_items(
         request.user)
 
+    page, is_paginated, next_url, prev_url = pagination(
+        request, commodities_on_watchlist)
+
     context = {
-        'commodities': commodities_on_watchlist,
+        'page_object': page,
+        'is_paginated': is_paginated,
+        'next_url': next_url,
+        'prev_url': prev_url,
         'message': message,
         'count': commodities_on_watchlist.count(),
     }
+
     return render(request, 'auctions/watchlist.html', context)
 
 

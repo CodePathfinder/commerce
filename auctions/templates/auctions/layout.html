@@ -15,7 +15,6 @@
 </head>
 
 <body>
-
     <!-- <div class="container"> -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <h2><a class="navbar-brand" href="{% url 'index' %}"><span
@@ -42,7 +41,14 @@
                     </div>
                     {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
+                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist
+                        {% count_watchlist_items as users_num %}
+                        {% for usr in users_num %}
+                        {% if usr.username == user.username %}
+                        <span class="badge badge-secondary ml-0.5" style="color:white;">{{ usr.num }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'create' %}">Create Listing</a>
@@ -75,6 +81,7 @@
     </nav>
 
     <div class="container mt-4">
+
         {% block body %}
         {% endblock %}
     </div>
