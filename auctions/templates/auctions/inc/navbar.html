@@ -1,0 +1,85 @@
+{# {% load auction_tags %} #}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	<h2><a class="navbar-brand" href="{% url 'index' %}"><span
+				style="border:2px solid#fff; padding:5px;">AUCTIONS</span></a></h2>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+		aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+	<div class="collapse navbar-collapse" id="navbarText">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'index' %}">Active Listings</a>
+			</li>
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown"
+					aria-haspopup="true" aria-expanded="false">
+					Categories
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+					<!-- ====== Line below is replaced by context.processor.py ====== -->
+					{# {% get_list_categories as categories %} #}
+					<!-- ====== Line above is replaced by context.processor.py ====== -->
+
+					{% for category in categories %}
+					<a class="dropdown-item" href="{{ category.get_absolute_url }}">{{ category }}</a>
+					{% endfor %}
+
+				</div>
+
+				{% if user.is_authenticated %}
+
+				<!-- ====== Commented Lines below are replaced with 'num_watched' value from context.processor.py ====== -->
+
+				{% comment %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'watchlist' %}">Watchlist
+					{% count_watchlist_items as users_num %}
+					{% for usr in users_num %}
+					{% if usr.username == user.username %}
+					<span class="badge badge-secondary ml-0.5" style="color:white;">{{ usr.num }}</span>
+					{% endif %}
+					{% endfor %}
+				</a>
+			</li>
+			{% endcomment %}
+
+			<!-- ====== Commented Lines above are replaced with 'num_watched' value from context.processor.py ====== -->
+
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'watchlist' %}">Watchlist
+					<span class="badge badge-secondary ml-0.5" style="color:white;">{{ num_watched }}</span>
+				</a>
+			</li>
+
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'create' %}">Create Listing</a>
+			</li>
+			{% endif %}
+		</ul>
+		<ul class="navbar-nav ml-auto">
+			{% if user.is_authenticated %}
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+			</li>
+			{% else %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'login' %}">Log In</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'register' %}">Register</a>
+			</li>
+			{% endif %}
+			<li class="nav-item navbar-text ml-2">
+				{% if user.is_authenticated %}
+				Signed in as <span class="text-white ml-1">{{ user.username }}</span>.
+				{% else %}
+				Not signed in.
+				{% endif %}
+			</li>
+		</ul>
+	</div>
+</nav>

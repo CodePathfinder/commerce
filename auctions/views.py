@@ -30,9 +30,10 @@ def index(request):
 
 
 def category(request, pk):
+   
     cat = get_object_or_404(Category, pk=pk)
     commodities = AuctionListings.objects.filter(
-        category=cat).exclude(is_active=False)
+            category=cat).exclude(is_active=False)
 
     page, is_paginated, next_url, prev_url = pagination(request, commodities)
 

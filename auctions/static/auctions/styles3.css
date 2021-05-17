@@ -1,0 +1,49 @@
+body {
+  padding: 10px;
+  background-color: rgba(0,0,0,.03);
+}
+
+.card-product-grid:hover {
+  box-shadow: 0 4px 15px rgb(153 153 153 / 30%);
+  transition: 0.3s;
+  /* transform: scale(1.01); */
+}
+
+.card-product-grid .img-wrap {
+  border-radius: 0.2rem 0.2rem 0 0;
+}
+
+.img-wrap {
+  max-height: 220px;
+  max-width: 100%;
+}
+
+.img-wrap-bid {
+  max-height: 480px;
+  max-width: 100%;
+}
+
+.card-header {
+  padding: 1rem 1rem;
+  margin-bottom: 0;
+  background-color: white;
+  border-bottom: 1px solid white;
+  height: 220px
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.card-footer {
+  padding: .75rem 1.25rem;
+  background-color: white;
+  border-top: 1px solid rgba(0,0,0,.125);
+}
+
+.form {
+  border: 1px solid rgba(0,0,0,.125);
+  box-shadow: 0 4px 15px rgb(153 153 153 / 30%);
+}
+
+/* rgb(153 153 153 / 30%) */

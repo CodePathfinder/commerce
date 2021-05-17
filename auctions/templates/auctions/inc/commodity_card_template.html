@@ -1,21 +1,31 @@
-<div class="col-lg-3 col-md-6 mb-4">
-	<div class="card h-100">
-		<a href="{{ commodity.get_absolute_url }}">
-			{% if commodity.photo %}
-			<img src="{{ commodity.photo }}" alt="{{ commodity.title }}"
-				class="card-img-top card-img-bottom w-50 ml-4 mt-3">
-			{% else %}
-			<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
-				alt="No image" class="card-img-top card-img-bottom w-50 ml-4 mt-3">
-			{% endif %}
-		</a>
-		<div class="card-body">
+<div class="col-lg-3 col-md-6 mb-5">
+	<!-- <div class="col-md-3"> -->
+	<div class="card card-product-grid h-100">
+		<div class="card-header">
+			<a href="{{ commodity.get_absolute_url }}">
+				{% if commodity.photo %}
+				<img src="{{ commodity.photo }}" alt="{{ commodity.title }}" class="img-wrap">
+				<!-- class="card-img-top card-img-bottom w-50 ml-4 mt-3" -->
+				{% else %}
+				<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
+					alt="No image" class="img-wrap">
+				{% endif %}
+			</a>
+		</div>
+
+		<div class="card-body mt-1">
 			<h4 class="card-title">
-				<a href="{{ commodity.get_absolute_url }}">{{ commodity.title }}</a>
+				<!-- <a href="{{ commodity.get_absolute_url }}">{{ commodity.title }}</a> -->
+				<a href="{{ commodity.get_absolute_url }}">
+					{{ commodity.title|truncatewords:5 }}{% if commodity.title|length < 15 %} <br><br>
+						{% endif %}
+
+				</a>
 			</h4>
 			<h5>${{ commodity.current_price|floatformat:2 }}</h5>
-			<p class="card-text">{{ commodity.discription }}</p>
+			<p class="card-text">{{ commodity.discription|truncatewords:8 }}</p>
 		</div>
+
 		<div class="card-footer">
 			{% for item in commodity.category.all %}
 			<a href="{{ item.get_absolute_url }}" class="badge badge-primary" style="color:white">

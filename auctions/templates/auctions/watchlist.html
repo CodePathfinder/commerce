@@ -7,7 +7,7 @@
 	<div class="col-lg-12">
 		<h2 class="text-center">Your Watchlist</h2>
 		<h5 class="mb-4 text-center">
-			{% if count %} 
+			{% if count %}
 			({{ count }} item{{ count|pluralize }})
 			{% else %}
 			(no items watched)
@@ -45,29 +45,34 @@
 
 			{% for commodity in page_object %}
 			<div class="col-lg-3 col-md-6 mb-4">
-				<div class="card h-100">
+				<div class="card card-product-grid h-100">
 
-					<div class="card-header">
+					<div class="ml-4 mt-2">
 						{% if commodity.commodity__is_active %}
 						<span class="badge badge-success" style="color:white">Active</span>
 						{% else %}
 						<span class="badge badge-secondary" style="color:white;">Closed</span>
 						{% endif %}
 					</div>
+					<div class="card-header">
+						<a href="{% url 'bid' commodity.commodity__pk %}">
+							{% if commodity.commodity__photo %}
+							<img src="{{ commodity.commodity__photo }}" alt="{{ commodity.commodity__title }}"
+								class="img-wrap">
+							{% else %}
+							<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
+								alt="No image" class="img-wrap">
+							{% endif %}
+						</a>
+					</div>
 
-					<a href="{% url 'bid' commodity.commodity__pk %}">
-						{% if commodity.commodity__photo %}
-						<img src="{{ commodity.commodity__photo }}" alt="{{ commodity.commodity__title }}"
-							class="card-img-top card-img-bottom w-50 ml-4 mt-3">
-						{% else %}
-						<img src="https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-picture-icon-png-image_4013511.jpg"
-							alt="No image" class="card-img-top card-img-bottom w-50 ml-4 mt-3">
-						{% endif %}
-					</a>
-
-					<div class="card-body">
+					<div class="card-body mt-1">
 						<h4 class="card-title">
-							<a href="{% url 'bid' commodity.commodity__pk %}">{{ commodity.commodity__title }}</a>
+							<a href="{% url 'bid' commodity.commodity__pk %}">
+								{{ commodity.commodity__title|truncatewords:5 }}
+								{% if commodity.commodity__title|length < 15 %} <br><br>
+									{% endif %}
+							</a>
 						</h4>
 						<h5>${{ commodity.commodity__current_price|floatformat:2 }}</h5>
 						<p class="card-text">{{ commodity.commodity__discription }}</p>
@@ -78,7 +83,7 @@
 						{% if commodity.commodity__listed_by__username == user.get_username %}
 
 						This is your listing.<br>
-						Starting price: ${{ commodity.commodity__starting_bid }}
+						Starting price: ${{ commodity.commodity__starting_bid|floatformat:2 }}
 
 						{% elif commodity.user_highest_bid %}
 
