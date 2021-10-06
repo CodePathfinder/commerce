@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.contrib import messages
 from .models import User, AuctionListings, Category, Bid, Comments, Watchlist
 from .forms import NewBid, NewComment, NewListing
 from .utils import \
@@ -30,10 +31,10 @@ def index(request):
 
 
 def category(request, pk):
-   
+
     cat = get_object_or_404(Category, pk=pk)
     commodities = AuctionListings.objects.filter(
-            category=cat).exclude(is_active=False)
+        category=cat).exclude(is_active=False)
 
     page, is_paginated, next_url, prev_url = pagination(request, commodities)
 
@@ -62,21 +63,28 @@ def closed(request, pk):
         winner = determine_winner_of_closed_listing(closed_commodity)
 
         if winner:
-            message = f"Auction for {closed_commodity.title} is closed by the seller on {closed_datetime_formatted}. The winner of the auction is {winner} with a winning bid ${closed_commodity.current_price:.2f}"
-            message_success = True
+            messages.success(
+                request, f"Auction for {closed_commodity.title} is closed by the seller on {closed_datetime_formatted}. The winner of the auction is {winner} with a winning bid ${closed_commodity.current_price:.2f}")
+            # TODO: uncomment or delete
+            # message = f"Auction for {closed_commodity.title} is closed by the seller on {closed_datetime_formatted}. The winner of the auction is {winner} with a winning bid ${closed_commodity.current_price:.2f}"
+            # message_success = True
         # generate message in case no bids have been offered
         else:
-            message = f"Auction for {closed_commodity.title} is closed by the seller on {closed_datetime_formatted}. No bid has been offered"
-            message_success = True
+            messages.success(
+                request, f"Auction for {closed_commodity.title} is closed by the seller on {closed_datetime_formatted}. No bid has been offered")
+            # message = f"Auction for {closed_commodity.title} is closed by the seller on {closed_datetime_formatted}. No bid has been offered"
+            # message_success = True
             winner = ''
     else:
-        message = f"Something went wrong: auction for {closed_commodity.title} was not closed"
-        message_success = False
+        messages.error(
+            request, f"Something went wrong: auction for {closed_commodity.title} was not closed")
+        # message = f"Something went wrong: auction for {closed_commodity.title} was not closed"
+        # message_success = False
         winner = ''
     return render(request, 'auctions/closed.html', {
         'commodity': closed_commodity,
-        'message': message,
-        'message_success': message_success,
+        # 'message': message,
+        # 'message_success': message_success,
         'winner': winner
     })
 
@@ -113,16 +121,15 @@ def bid(request, pk):
                 message_success = True
             else:
                 if n:
-                    message = "New bid shall be greater than highest bid (current price)"
+                    messages.warning(
+                        request, "New bid shall be greater than highest bid (current price)")
                 else:
-                    message = "New bid shall be at least as large as the starting price"
-                message_success = False
+                    messages.warning(
+                        request, "New bid shall be at least as large as the starting price")
         else:
-            message = "Validation error"
-            message_success = False
+            messages.error(request, "Validation error")
     else:
-        message = ''
-        message_success = False
+        pass
 
     bids_n = Bid.objects.filter(
         commodity=commodity, new_bid__gte=commodity.starting_bid).count()
@@ -131,13 +138,17 @@ def bid(request, pk):
     else:
         on_watchlist = False
     winner = determine_winner_of_closed_listing(commodity)
+    if not request.user.is_authenticated:
+        messages.warning(
+            request, "Please sign in to place a bid, set a watchlist, or leave a comment")
+    elif winner == request.user.get_username and not commodity.is_active:
+        messages.success(
+            request, f"Congratulations! You are the winner of the listing: {commodity.title} for ${commodity.current_price}")
 
     context = {
         'commodity': commodity,
         'comments': comments,
         'form': NewBid(),
-        'message': message,
-        'message_success': message_success,
         'bids_n': bids_n,
         'comments_n': comments.count(),
         'on_watchlist': on_watchlist,
@@ -168,13 +179,11 @@ def create(request):
             return redirect('bid', new_listing.pk)
         else:
             form = NewListing(form)
-            message = "Validation error"
+            messages.error(request, "Validation error")
     else:
         form = NewListing()
-        message = ''
     context = {
-        'form': form,
-        'message': message
+        'form': form
     }
     return render(request, "auctions/create.html", context)
 
@@ -221,10 +230,12 @@ def watchlist(request):
             wl = wl.get()
             if wl.on_watchlist == True:
                 wl.on_watchlist = False
-                message = f"{wl.commodity.title} is removed from the watchlist"
+                messages.success(
+                    request, f"{wl.commodity.title} is removed from the watchlist")
             else:
                 wl.on_watchlist = True
-                message = f"{wl.commodity.title} is added to the watchlist"
+                messages.success(
+                    request, f"{wl.commodity.title} is added to the watchlist")
             wl.save()
 
         # Option 2: commodity has never been registered on user's watchlist. If flag is switched to True, the commodity is added as newly created Watchlist object.
@@ -235,9 +246,10 @@ def watchlist(request):
                 on_watchlist=True
             )
             wl_item.save()
-            message = f"{wl_item.commodity.title} is added to the watchlist"
+            messages.success(
+                request, f"{wl_item.commodity.title} is added to the watchlist")
     else:
-        message = ''
+        pass
 
     commodities_on_watchlist = list_with_added_highest_bid_user_made_for_each_watchlist_items(
         request.user)
@@ -250,7 +262,6 @@ def watchlist(request):
         'is_paginated': is_paginated,
         'next_url': next_url,
         'prev_url': prev_url,
-        'message': message,
         'count': commodities_on_watchlist.count(),
     }
 
@@ -270,9 +281,8 @@ def login_view(request):
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "auctions/login.html", {
-                "message": "Invalid username and/or password."
-            })
+            messages.error(request, "Invalid username and/or password.")
+            return redirect("login")
     else:
         return render(request, "auctions/login.html")
 
@@ -291,18 +301,17 @@ def register(request):
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
-            return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
-            })
+            messages.error(request, "Passwords must match.")
+            return redirect("register")
 
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, "auctions/register.html", {
-                "message": "Username already taken."
-            })
+            messages.error(request, "Username is already taken.")
+            return redirect("register")
+
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:

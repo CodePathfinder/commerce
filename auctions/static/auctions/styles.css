@@ -1,6 +1,6 @@
 body {
   padding: 10px;
-  background-color: rgba(0,0,0,.03);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .card-product-grid:hover {
@@ -21,6 +21,12 @@ body {
 .img-wrap-bid {
   max-height: 480px;
   max-width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: white;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .card-header {
@@ -28,7 +34,7 @@ body {
   margin-bottom: 0;
   background-color: white;
   border-bottom: 1px solid white;
-  height: 220px
+  height: 220px;
 }
 
 a:hover {
@@ -36,14 +42,12 @@ a:hover {
 }
 
 .card-footer {
-  padding: .75rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   background-color: white;
-  border-top: 1px solid rgba(0,0,0,.125);
+  border-top: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .form {
-  border: 1px solid rgba(0,0,0,.125);
+  border: 1px solid rgba(0, 0, 0, 0.125);
   box-shadow: 0 4px 15px rgb(153 153 153 / 30%);
 }
-
-/* rgb(153 153 153 / 30%) */

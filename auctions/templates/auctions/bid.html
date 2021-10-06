@@ -5,25 +5,9 @@
 <!-- Page Content -->
 <div class="col-lg-12">
 
-	{% if not user.is_authenticated %}
-	<div class="alert alert-warning alert-dismissible fade show" role="alert">
-		<strong>Please sign in to place a bid, set a
-			watchlist, or leave a comment</strong>
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	{% elif winner == user.get_username and not commodity.is_active %}
-	<div class="alert alert-success alert-dismissible fade show" role="alert">
-		<strong>Congratulations! You are the winner of the listing:
-			{{ commodity.title }} for ${{ commodity.current_price|floatformat:2 }}
-		</strong>
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	{% endif %}
-	<div class="row mt-4">
+	{% include 'auctions/inc/alerts.html' %}
+
+	<div class="row mt-4" style="display:flex;">
 		<div class="col-md-4">
 			{% if commodity.photo %}
 			<img src="{{ commodity.photo }}" alt="{{ commodity.title }}" class="img-wrap-bid">
@@ -39,25 +23,6 @@
 				<div class="list-group-item">
 					<h4>{{ commodity.title }}</h4>
 				</div>
-
-				{% if message %}
-				{% if message_success %}
-				<div class="alert alert-success alert-dismissible fade show" role="alert">
-					<strong>{{ message }}</strong>
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				{% else %}
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					<strong>{{ message }}</strong>
-					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				{% endif %}
-				{% endif %}
-
 				<div class="list-group-item inline">
 					<h6 class="mt-1">
 						{% if commodity.is_active %}
@@ -109,7 +74,9 @@
 						<!-- <button class="btn btn-danger btn-block">Remove from watchlist</button> -->
 						<button class="btn btn-outline-danger  btn-block">Remove from watchlist</button>
 						{% else %}
-						<button class="btn btn-outline-success btn-block">Add to watchlist</button>
+						<button class="btn btn-outline-success btn-block">Add to watchlist
+							<i class="fas fa-eye"></i>
+						</button>
 						{% endif %}
 					</form>
 

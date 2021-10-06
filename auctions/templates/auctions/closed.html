@@ -18,29 +18,8 @@
 		<div class="col-md-8">
 			<div class="list-group list-group-flush">
 
-				{% if message %}
-				{% if message_success %}
+				{% include 'auctions/inc/alerts.html' %}
 
-				<div class="alert alert-success alert-dismissible fade show" role="alert">
-					<strong>{{ message }}</strong>
-					<a href="{% url 'bid' commodity.pk %}"><button type="button" class="close" data-dismiss="alert"
-							aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button></a>
-				</div>
-
-				{% else %}
-
-				<div class="alert alert-warning alert-dismissible fade show" role="alert">
-					<strong>{{ message }}</strong>
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-				</div>
-
-				{% endif %}
-				{% endif %}
-				
 				<div class="list-group-item">
 					<h4>{{ commodity.title }}</h4>
 				</div>
@@ -70,7 +49,7 @@
 					{% else %}
 					<h6>No winner</h6>
 					{% endif %}
-				</div>				
+				</div>
 				<div class="list-group-item">
 					<h6>Seller: {{ commodity.listed_by }}</h6>
 				</div>
